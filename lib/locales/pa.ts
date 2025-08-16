@@ -52,12 +52,12 @@ const paLocale: Locale = {
   formatDistance: (token, count) => `${count} ${token}`,
   formatRelative: (token) => token,
   match: {
-    ordinalNumber: (str) => /^\d+$/.test(str),
-    era: (str) => /^(ad|bc)/i.test(str),
-    quarter: (str) => /^q\d/i.test(str),
-    month: (str) => monthValues.wide.find(m => m === str) ? 0 : -1,
-    day: (str) => dayValues.wide.find(d => d === str) ? 0 : -1,
-    dayPeriod: (str) => /^(a\.m\.|p\.m\.)/i.test(str),
+    ordinalNumber: () => null,
+    era: () => null,
+    quarter: () => null,
+    month: () => null,
+    day: () => null,
+    dayPeriod: () => null,
   },
   options: {
     weekStartsOn: 1,
