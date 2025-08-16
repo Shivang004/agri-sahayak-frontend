@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // This variable will hold our database connection.
 let db: Database | null = null;
