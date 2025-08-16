@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // Insert the new user into the database
     await client.query(
-      'INSERT INTO users (username, passwordHash, state_id, district_id) VALUES ($1, $2, $3, $4)', 
+      'INSERT INTO users (username, passwordhash, state_id, district_id) VALUES ($1, $2, $3, $4)', 
       [username, passwordHash, state_id, district_id]
     );
 

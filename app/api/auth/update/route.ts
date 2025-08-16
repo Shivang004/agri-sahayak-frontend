@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     if (password) {
       const saltRounds = 10;
       const passwordHash = await bcrypt.hash(password, saltRounds);
-      updates.push(`passwordHash = $${paramIndex}`);
+      updates.push(`passwordhash = $${paramIndex}`);
       params.push(passwordHash);
       paramIndex++;
     }

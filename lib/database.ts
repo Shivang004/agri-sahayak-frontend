@@ -74,7 +74,7 @@ export async function getDb(): Promise<PoolClient> {
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username TEXT UNIQUE,
-        passwordHash TEXT
+        passwordhash TEXT
       )
     `);
 
@@ -99,7 +99,7 @@ export async function getDb(): Promise<PoolClient> {
       const saltRounds = 10;
       const adminPasswordHash = await bcrypt.hash('password', saltRounds);
       await client.query(
-        'INSERT INTO users (username, passwordHash, state_id, district_id) VALUES ($1, $2, $3, $4)', 
+        'INSERT INTO users (username, passwordhash, state_id, district_id) VALUES ($1, $2, $3, $4)', 
         ['admin', adminPasswordHash, 8, 104]
       ); // Uttar Pradesh (8), Kanpur Nagar (104)
       console.log('Default admin user created with username "admin" and password "password"');
