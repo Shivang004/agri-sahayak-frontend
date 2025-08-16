@@ -1,10 +1,11 @@
 // File: app/api/auth/login/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb } from '@/lib/database'; // Import our new database function
+import { getDb, releaseClient } from '@/lib/database'; // Import our new database function
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
+  let client;
   try {
     const { username, password } = await req.json();
 
@@ -13,10 +14,11 @@ export async function POST(req: NextRequest) {
     }
     
     // Get the database connection
-    const db = await getDb();
+    client = await getDb();
 
     // Find the user in the database
-    const user = await db.get('SELECT * FROM users WHERE username = ?', username);
+    const result = await client.query('SELECT * FROM users WHERE username = $1', [username]);
+    const user = result.rows[0];
 
     // If no user is found, the credentials are invalid
     if (!user) {
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Compare the provided password with the stored hash
-    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+    const passwordMatch = await bcrypt.compare(password, user.passwordhash);
 
     if (passwordMatch) {
       // If the passwords match, login is successful
@@ -37,5 +39,9 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Login Error:', error);
     return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    if (client) {
+      releaseClient(client);
+    }
   }
 }
