@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
-import { fetchStates, fetchDistricts, type State, type District } from '@/lib/marketApi';
+import { getStates, getDistricts, type State, type District } from '@/lib/localData';
 
 export default function Signup({ onSwitchToLogin }: { onSwitchToLogin: () => void }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [states, setStates] = useState<State[]>([]);
+  const [states] = useState<State[]>(() => getStates());
   const [districts, setDistricts] = useState<District[]>([]);
   const [selectedState, setSelectedState] = useState<number | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<number | null>(null);
@@ -17,38 +17,17 @@ export default function Signup({ onSwitchToLogin }: { onSwitchToLogin: () => voi
   const { t } = useLanguage();
 
   useEffect(() => {
-    loadStates();
-  }, []);
-
-  useEffect(() => {
     if (selectedState) {
-      loadDistricts(selectedState);
+      const districtsForState = getDistricts(selectedState);
+      setDistricts(districtsForState);
+      if (districtsForState.length > 0) {
+        setSelectedDistrict(districtsForState[0].district_id);
+      }
     } else {
       setDistricts([]);
       setSelectedDistrict(null);
     }
   }, [selectedState]);
-
-  const loadStates = async () => {
-    try {
-      const statesData = await fetchStates();
-      setStates(statesData);
-    } catch (error) {
-      console.error('Failed to load states:', error);
-    }
-  };
-
-  const loadDistricts = async (stateId: number) => {
-    try {
-      const districtsData = await fetchDistricts(stateId);
-      setDistricts(districtsData);
-      if (districtsData.length > 0) {
-        setSelectedDistrict(districtsData[0].district_id);
-      }
-    } catch (error) {
-      console.error('Failed to load districts:', error);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

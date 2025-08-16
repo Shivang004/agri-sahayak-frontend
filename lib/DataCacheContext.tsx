@@ -1,7 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import type { Commodity, State, District, PriceData, QuantityData } from '@/lib/marketApi';
+import type { Commodity, State, District } from '@/lib/localData';
+import type { PriceData, QuantityData } from '@/lib/marketApi';
 import type { WeatherData, LocationData } from '@/lib/weatherApi';
 import type { ChatMessage } from '@/components/MessageList';
 

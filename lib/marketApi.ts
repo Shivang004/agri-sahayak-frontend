@@ -1,18 +1,3 @@
-export interface Commodity {
-  commodity_id: number;
-  commodity_name: string;
-}
-
-export interface State {
-  state_id: number;
-  state_name: string;
-}
-
-export interface District {
-  district_id: number;
-  district_name: string;
-}
-
 export interface PriceData {
   date: string;
   min_price: number;
@@ -38,51 +23,6 @@ export interface MarketDataResponse {
 }
 
 const API_BASE = 'https://agri-sahayak-backend-production.up.railway.app/api/data';
-
-// Fetch commodities from backend
-export async function fetchCommodities(): Promise<Commodity[]> {
-  try {
-    const response = await fetch(`${API_BASE}/commodities`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.commodities || [];
-  } catch (error) {
-    console.error('Error fetching commodities:', error);
-    return [];
-  }
-}
-
-// Fetch states from backend
-export async function fetchStates(): Promise<State[]> {
-  try {
-    const response = await fetch(`${API_BASE}/states`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.states || [];
-  } catch (error) {
-    console.error('Error fetching states:', error);
-    return [];
-  }
-}
-
-// Fetch districts for a specific state
-export async function fetchDistricts(stateId: number): Promise<District[]> {
-  try {
-    const response = await fetch(`${API_BASE}/districts/${stateId}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.districts || [];
-  } catch (error) {
-    console.error('Error fetching districts:', error);
-    return [];
-  }
-}
 
 // Fetch prices from backend
 export async function fetchPrices(params: {

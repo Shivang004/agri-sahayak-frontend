@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { useLanguage } from '@/lib/LanguageContext';
-import { fetchStates, fetchDistricts, type State, type District } from '@/lib/marketApi';
+import { getStates, getDistricts, type State, type District } from '@/lib/localData';
 import Link from 'next/link';
 
 export default function ProfilePage() {
@@ -11,7 +11,7 @@ export default function ProfilePage() {
   const { t } = useLanguage();
   const [username, setUsername] = useState(user?.username || '');
   const [password, setPassword] = useState('');
-  const [states, setStates] = useState<State[]>([]);
+  const [states] = useState<State[]>(() => getStates());
   const [districts, setDistricts] = useState<District[]>([]);
   const [selectedState, setSelectedState] = useState<number | null>(user?.state_id || null);
   const [selectedDistrict, setSelectedDistrict] = useState<number | null>(user?.district_id || null);
@@ -20,38 +20,17 @@ export default function ProfilePage() {
   const [isEditingLocation, setIsEditingLocation] = useState(false);
 
   useEffect(() => {
-    loadStates();
-  }, []);
-
-  useEffect(() => {
     if (selectedState) {
-      loadDistricts(selectedState);
+      const districtsForState = getDistricts(selectedState);
+      setDistricts(districtsForState);
+      if (districtsForState.length > 0 && !selectedDistrict) {
+        setSelectedDistrict(districtsForState[0].district_id);
+      }
     } else {
       setDistricts([]);
       setSelectedDistrict(null);
     }
-  }, [selectedState]);
-
-  const loadStates = async () => {
-    try {
-      const statesData = await fetchStates();
-      setStates(statesData);
-    } catch (error) {
-      console.error('Failed to load states:', error);
-    }
-  };
-
-  const loadDistricts = async (stateId: number) => {
-    try {
-      const districtsData = await fetchDistricts(stateId);
-      setDistricts(districtsData);
-      if (districtsData.length > 0 && !selectedDistrict) {
-        setSelectedDistrict(districtsData[0].district_id);
-      }
-    } catch (error) {
-      console.error('Failed to load districts:', error);
-    }
-  };
+  }, [selectedState, selectedDistrict]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

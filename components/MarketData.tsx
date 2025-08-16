@@ -4,19 +4,24 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/lib/LanguageContext';
 import { useDataCache } from '@/lib/DataCacheContext';
 import { 
-  fetchCommodities, 
-  fetchStates,
-  fetchDistricts,
   fetchPrices, 
   fetchQuantities,
   aggregateDataByDate,
   getLatestDataPoint,
-  type Commodity,
-  type State,
-  type District,
   type PriceData,
   type QuantityData
 } from '@/lib/marketApi';
+import { 
+  getCommodities, 
+  getStates, 
+  getDistricts,
+  getCommodityById,
+  getStateById,
+  getDistrictById,
+  type Commodity,
+  type State,
+  type District
+} from '@/lib/localData';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -43,32 +48,28 @@ ChartJS.register(
 export default function MarketData() {
   const { t } = useLanguage();
   const {
-    commodities: cachedCommodities,
-    states: cachedStates,
-    districts: cachedDistricts,
     marketData: cachedMarketData,
     selectedCommodity: cachedSelectedCommodity,
     selectedState: cachedSelectedState,
     selectedDistrict: cachedSelectedDistrict,
     fromDate: cachedFromDate,
     toDate: cachedToDate,
-    setCommodities,
-    setStates,
-    setDistricts,
     setMarketData,
     setSelectedCommodity,
     setSelectedState,
     setSelectedDistrict,
     setDateRange,
-    isCommoditiesCached,
-    isStatesCached,
-    isDistrictsCached,
     isMarketDataCached
   } = useDataCache();
 
+  // Load local data
+  const [commodities] = useState<Commodity[]>(() => getCommodities());
+  const [states] = useState<State[]>(() => getStates());
+  const [districts, setDistricts] = useState<District[]>([]);
+
   // Use cached values or defaults
   const [selectedCommodity, setSelectedCommodityLocal] = useState<number | null>(
-    cachedSelectedCommodity || null
+    cachedSelectedCommodity || (commodities.length > 0 ? commodities[0].commodity_id : null)
   );
   const [selectedState, setSelectedStateLocal] = useState<number | null>(
     cachedSelectedState || null
@@ -112,62 +113,20 @@ export default function MarketData() {
     }
   }, [fromDate, toDate, cachedFromDate, cachedToDate, setDateRange]);
 
-  // Load initial data only if not cached
-  useEffect(() => {
-    if (!isCommoditiesCached() || !isStatesCached()) {
-      loadInitialData();
-    } else {
-      // Set initial commodity if not already set
-      if (!selectedCommodity && cachedCommodities.length > 0) {
-        setSelectedCommodityLocal(cachedCommodities[0].commodity_id);
-      }
-    }
-  }, [isCommoditiesCached, isStatesCached, cachedCommodities, selectedCommodity]);
-
   // Load districts when state changes
   useEffect(() => {
     if (selectedState) {
-      if (!isDistrictsCached(selectedState)) {
-        loadDistricts(selectedState);
-      } else {
-        // Set initial district if not already set
-        const districtsForState = cachedDistricts[selectedState];
-        if (districtsForState && districtsForState.length > 0 && !selectedDistrict) {
-          setSelectedDistrictLocal(districtsForState[0].district_id);
-        }
+      const districtsForState = getDistricts(selectedState);
+      setDistricts(districtsForState);
+      // Set initial district if not already set
+      if (districtsForState.length > 0 && !selectedDistrict) {
+        setSelectedDistrictLocal(districtsForState[0].district_id);
       }
     } else {
+      setDistricts([]);
       setSelectedDistrictLocal(null);
     }
-  }, [selectedState, isDistrictsCached, cachedDistricts, selectedDistrict]);
-
-  const loadInitialData = async () => {
-    try {
-      const [commoditiesData, statesData] = await Promise.all([
-        fetchCommodities(),
-        fetchStates()
-      ]);
-      setCommodities(commoditiesData);
-      setStates(statesData);
-      if (commoditiesData.length > 0 && !selectedCommodity) {
-        setSelectedCommodityLocal(commoditiesData[0].commodity_id);
-      }
-    } catch (err) {
-      setError('Failed to load initial data');
-    }
-  };
-
-  const loadDistricts = async (stateId: number) => {
-    try {
-      const districtsData = await fetchDistricts(stateId);
-      setDistricts(stateId, districtsData);
-      if (districtsData.length > 0 && !selectedDistrict) {
-        setSelectedDistrictLocal(districtsData[0].district_id);
-      }
-    } catch (err) {
-      setError('Failed to load districts');
-    }
-  };
+  }, [selectedState, selectedDistrict]);
 
   const loadMarketData = async () => {
     if (!selectedCommodity || !selectedState || !selectedDistrict) return;
@@ -213,18 +172,17 @@ export default function MarketData() {
   };
 
   const getCommodityName = (commodityId: number) => {
-    const commodity = cachedCommodities.find(c => c.commodity_id === commodityId);
+    const commodity = getCommodityById(commodityId);
     return commodity?.commodity_name || 'Unknown';
   };
 
   const getStateName = (stateId: number) => {
-    const state = cachedStates.find(s => s.state_id === stateId);
+    const state = getStateById(stateId);
     return state?.state_name || 'Unknown';
   };
 
   const getDistrictName = (districtId: number) => {
-    if (!selectedState) return 'Unknown';
-    const district = cachedDistricts[selectedState]?.find((d: District) => d.district_id === districtId);
+    const district = getDistrictById(districtId);
     return district?.district_name || 'Unknown';
   };
 
@@ -279,7 +237,7 @@ export default function MarketData() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">{t('selectCommodity')}</option>
-              {cachedCommodities.map(commodity => (
+              {commodities.map(commodity => (
                 <option key={commodity.commodity_id} value={commodity.commodity_id}>
                   {commodity.commodity_name}
                 </option>
@@ -300,7 +258,7 @@ export default function MarketData() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="">{t('selectState')}</option>
-              {cachedStates.map(state => (
+              {states.map(state => (
                 <option key={state.state_id} value={state.state_id}>
                   {state.state_name}
                 </option>
@@ -319,7 +277,7 @@ export default function MarketData() {
               disabled={!selectedState}
             >
               <option value="">{t('selectDistrict')}</option>
-              {selectedState && cachedDistricts[selectedState]?.map((district: District) => (
+              {districts.map((district: District) => (
                 <option key={district.district_id} value={district.district_id}>
                   {district.district_name}
                 </option>
