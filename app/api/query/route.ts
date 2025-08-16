@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Prepare the request to the backend
-    const backendUrl = 'http://agri-sahayak-backend-production.up.railway.app/api/query';
+    const backendUrl = 'https://agri-sahayak-backend-production.up.railway.app/api/query';
     
     // Forward the FormData directly to the backend
     const response = await fetch(backendUrl, {

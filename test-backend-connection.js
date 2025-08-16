@@ -1,7 +1,7 @@
 // Test script to verify backend connection
 // Run this with: node test-backend-connection.js
 
-const API_BASE = 'http://agri-sahayak-backend-production.up.railway.app/api/data';
+const API_BASE = 'https://agri-sahayak-backend-production.up.railway.app/api/data';
 
 async function testBackendConnection() {
   console.log('🌾 Testing Agri Sahayak Backend Connection\n');
@@ -116,7 +116,7 @@ async function testBackendConnection() {
 
   } catch (error) {
     console.error('❌ Test failed with error:', error.message);
-    console.log('\n💡 Make sure the backend server is running on http://agri-sahayak-backend-production.up.railway.app');
+    console.log('\n💡 Make sure the backend server is running on https://agri-sahayak-backend-production.up.railway.app');
   }
 }
 

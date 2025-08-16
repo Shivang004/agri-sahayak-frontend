@@ -37,7 +37,7 @@ export interface MarketDataResponse {
   };
 }
 
-const API_BASE = 'http://agri-sahayak-backend-production.up.railway.app/api/data';
+const API_BASE = 'https://agri-sahayak-backend-production.up.railway.app/api/data';
 
 // Fetch commodities from backend
 export async function fetchCommodities(): Promise<Commodity[]> {
