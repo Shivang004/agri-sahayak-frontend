@@ -13,20 +13,165 @@ import Login from '@/components/Login';
 import Signup from '@/components/Signup';
 import Link from 'next/link';
 
-type AuthView = 'login' | 'signup';
+type AuthView = 'home' | 'login' | 'signup';
 
 export default function Page() {
   const { t } = useLanguage();
   const { isAuthenticated, logout } = useAuth();
   const { clearAllCache } = useDataCache();
   const [activeTab, setActiveTab] = useState<'chat' | 'market' | 'weather' | 'fertilizer'>('chat');
-  const [authView, setAuthView] = useState<AuthView>('login');
+  const [authView, setAuthView] = useState<AuthView>('home');
 
   if (!isAuthenticated) {
     if (authView === 'signup') {
       return <Signup onSwitchToLogin={() => setAuthView('login')} />;
     }
-    return <Login onSwitchToSignup={() => setAuthView('signup')} />;
+    if (authView === 'login') {
+      return <Login onSwitchToSignup={() => setAuthView('signup')} />;
+    }
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <header className="border-b bg-white">
+          <div className="mx-auto max-w-7xl px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/logo.png" alt="Agri Sahayak Logo" className="h-12 w-12" />
+              <h1 className="text-2xl font-bold text-green-600">{t('title')}</h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <LanguageSelector />
+              <button
+                onClick={() => setAuthView('login')}
+                className="px-4 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200"
+              >
+                {t('login')}
+              </button>
+              <button
+                onClick={() => setAuthView('signup')}
+                className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+              >
+                {t('Signup')}
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <section className="bg-gradient-to-b from-green-50 to-gray-50">
+          <div className="mx-auto max-w-7xl px-4 py-16 grid gap-8 md:grid-cols-2 items-center">
+            <div>
+              <h2 className="text-4xl font-extrabold tracking-tight text-gray-900">{t('homeTagline')}</h2>
+              <p className="mt-4 text-lg text-gray-600">
+                {t('homeAbout')}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button
+                  onClick={() => setAuthView('signup')}
+                  className="px-6 py-3 text-sm font-semibold text-white bg-green-600 rounded-md hover:bg-green-700"
+                >
+                  {t('Create Your Account')}
+                </button>
+                <button
+                  onClick={() => setAuthView('login')}
+                  className="px-6 py-3 text-sm font-semibold text-green-700 bg-green-100 rounded-md hover:bg-green-200"
+                >
+                  {t('Already Have An Account')}
+                </button>
+              </div>
+            </div>
+            <div className="flex justify-center md:justify-end">
+              <div className="bg-white rounded-xl shadow-md p-6 w-full max-w-md border">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-700 font-bold">AS</span>
+                  <div>
+                    <p className="text-sm text-gray-500">Assistant</p>
+                    <p className="font-semibold text-gray-800">How can I help you today?</p>
+                  </div>
+                </div>
+                <div className="mt-4 space-y-2 text-sm text-gray-600">
+                  <p>• {t('homeSample1')}</p>
+                  <p>• {t('homeSample2')}</p>
+                  <p>• {t('homeSample3')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white border-t">
+          <div className="mx-auto max-w-7xl px-4 py-12">
+            <h3 className="text-2xl font-bold text-gray-900">{t('homeHowToUse')}</h3>
+            <ol className="mt-6 grid gap-6 md:grid-cols-3">
+              <li className="flex gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-700 font-bold">1</div>
+                <div>
+                  <p className="font-semibold text-gray-800">{t('homeStep1Title')}</p>
+                  <p className="text-gray-600 text-sm">{t('homeStep1Desc')}</p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-700 font-bold">2</div>
+                <div>
+                  <p className="font-semibold text-gray-800">{t('homeStep2Title')}</p>
+                  <p className="text-gray-600 text-sm">{t('homeStep2Desc')}</p>
+                </div>
+              </li>
+              <li className="flex gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-700 font-bold">3</div>
+                <div>
+                  <p className="font-semibold text-gray-800">{t('homeStep3Title')}</p>
+                  <p className="text-gray-600 text-sm">{t('homeStep3Desc')}</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <section className="bg-gray-50 border-t">
+          <div className="mx-auto max-w-7xl px-4 py-12">
+            <h3 className="text-2xl font-bold text-gray-900">{t('homeFeaturesTitle')}</h3>
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-lg border bg-white p-5 shadow-sm">
+                <p className="font-semibold text-gray-800">{t('featureChatTitle')}</p>
+                <p className="mt-2 text-sm text-gray-600">{t('featureChatDesc')}</p>
+              </div>
+              <div className="rounded-lg border bg-white p-5 shadow-sm">
+                <p className="font-semibold text-gray-800">{t('featureMarketTitle')}</p>
+                <p className="mt-2 text-sm text-gray-600">{t('featureMarketDesc')}</p>
+              </div>
+              <div className="rounded-lg border bg-white p-5 shadow-sm">
+                <p className="font-semibold text-gray-800">{t('featureWeatherTitle')}</p>
+                <p className="mt-2 text-sm text-gray-600">{t('featureWeatherDesc')}</p>
+              </div>
+              <div className="rounded-lg border bg-white p-5 shadow-sm">
+                <p className="font-semibold text-gray-800">{t('featureFertilizerTitle')}</p>
+                <p className="mt-2 text-sm text-gray-600">{t('featureFertilizerDesc')}</p>
+              </div>
+              <div className="rounded-lg border bg-white p-5 shadow-sm">
+                <p className="font-semibold text-gray-800">{t('featureLanguageTitle')}</p>
+                <p className="mt-2 text-sm text-gray-600">{t('featureLanguageDesc')}</p>
+              </div>
+              <div className="rounded-lg border bg-white p-5 shadow-sm">
+                <p className="font-semibold text-gray-800">{t('featureFastTitle')}</p>
+                <p className="mt-2 text-sm text-gray-600">{t('featureFastDesc')}</p>
+              </div>
+            </div>
+            <div className="mt-8">
+              <button
+                onClick={() => setAuthView('signup')}
+                className="px-6 py-3 text-sm font-semibold text-white bg-green-600 rounded-md hover:bg-green-700"
+              >
+                {t('Create Your Account')}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <footer className="border-t bg-white">
+          <div className="mx-auto max-w-7xl px-4 py-6 text-sm text-gray-500">
+            © {new Date().getFullYear()} {t('title')}. {t('homeFooter')}
+          </div>
+        </footer>
+      </main>
+    );
   }
 
   const renderMainContent = () => {
